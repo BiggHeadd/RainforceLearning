@@ -4,7 +4,7 @@
 import numpy as np
 import pandas as pd
 
-class QLearningTable:
+class QLearningTable(object):
     #initialization
     def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.9):
         self.actions = actions
@@ -19,16 +19,17 @@ class QLearningTable:
 
         if np.random.uniform()<self.epsilon:
             state_action = self.q_table.loc[observation, :]
-            action = np.random.choice(state_action[state_action=np.max(state_action)].index)
+            action = np.random.choice(state_action[state_action==np.max(state_action)].index)
         else:
             action = np.random.choice(self.actions)
+        return action
 
     #update the learning param
     def learn(self, s, a, r, s_):
         self.check_state_exist(s_)
         q_now = self.q_table.loc[s, a]
         if s_ != 'terminal':
-            q_next = r + self.gamma * self.q_table.loc[s_, :].max
+            q_next = r + self.gamma * self.q_table.loc[s_, :].max()
         else:
             q_next = r
         self.q_table.loc[s,a] += self.lr * (q_next - q_now)

@@ -90,7 +90,38 @@ def rl():
     return q_table
 
 
+def rl_sarsa():
+    q_table = build_q_table(N_STATE, ACTIONS)
+    for episode in range(MAX_EPISODES):
+        S = 0
+        step_counter = 0
+        A = choose_action(S, q_table)
+        is_terminated = False
+        update_env(S, episode, step_counter)
+        while not is_terminated:
+            S_, R = get_env_feedback(S, A)
+            if S_ != 'terminal':
+                A_ = choose_action(S_, q_table)
+                q_next = R + GAMMA * q_table.loc[S_, A_]
+            else:
+                q_next = R
+                is_terminated = True
+                print(q_table)
+            q_now = q_table.loc[S, A]
+            q_table.loc[S, A] += ALPHA* (q_next - q_now)
+            
+            S = S_
+            A = A_
+            update_env(S, episode, step_counter+1)
+            step_counter+=1
+    return q_table
+
+
 if __name__ == "__main__":
-    q_table = rl()
+    q_table = rl_sarsa()
     print('\r\rQ-table:\n')
     print(q_table)
+    
+    #q_table = build_q_table(N_STATE, ACTIONS)
+    #A = choose_action(0, q_table)
+    #print(A)
